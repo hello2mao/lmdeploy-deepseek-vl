@@ -358,6 +358,15 @@ async def chat_completions_v1_qos(request: ChatCompletionRequestQos,
 
     return response
 
+@app.post("/v1/chat/tokens")
+async def count_tokens_from_messages(request: ChatCompletionRequest, raw_request: Request):
+    usage = UsageInfo(
+        prompt_tokens=100,
+        total_tokens=4096,
+    )
+
+    return JSONResponse(content=usage.model_dump())
+
 
 @app.post('/v1/chat/completions', dependencies=[Depends(check_api_key)])
 async def chat_completions_v1(request: ChatCompletionRequest,

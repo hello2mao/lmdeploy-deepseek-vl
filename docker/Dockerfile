@@ -13,13 +13,18 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip &&\
 ENV NCCL_LAUNCH_MODE=GROUP
 
 # Should be in the lmdeploy root directory when building docker image
-COPY . /opt/lmdeploy
 
 WORKDIR /opt/lmdeploy
 
-RUN cd /opt/lmdeploy &&\
-    python3 -m pip install --no-cache-dir -r requirements.txt &&\
-    mkdir -p build && cd build &&\
+COPY requirements.txt requirements.txt
+COPY requirements requirements
+RUN python3 -m pip install --no-cache-dir -r requirements.txt
+
+RUN python3 -m pip install --no-cache-dir git+https://github.com/deepseek-ai/DeepSeek-VL.git
+
+COPY . .
+RUN mkdir -p build
+RUN cd build &&\
     cmake .. \
         -DCMAKE_BUILD_TYPE=RelWithDebInfo \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
@@ -29,10 +34,14 @@ RUN cd /opt/lmdeploy &&\
         -DBUILD_CUTLASS_MOE=OFF \
         -DBUILD_CUTLASS_MIXED_GEMM=OFF \
         -DCMAKE_CUDA_FLAGS="-lineinfo" \
-        -DUSE_NVTX=ON &&\
-    make -j$(nproc) && make install &&\
-    cd .. &&\
-    python3 -m pip install -e . &&\
-    rm -rf build
+        -DUSE_NVTX=ON
+RUN cd build &&\
+    make -j$(nproc) 
+RUN cd build &&\ 
+    make install
+RUN python3 -m pip install -e . 
+RUN rm -rf build
 
 ENV LD_LIBRARY_PATH=/opt/tritonserver/lib:$LD_LIBRARY_PATH
+
+
