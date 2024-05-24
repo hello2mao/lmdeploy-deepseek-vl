@@ -16,7 +16,7 @@ sudo docker run -d --restart=always --runtime nvidia --gpus all \
     lmdeploy serve api_server deepseek-ai/deepseek-vl-7b-chat \
     --tp 8 \
     --session-len 8192 \
-    --cache-max-entry-count 0.1 \
+    --cache-max-entry-count 0.4 \
     --model-name deepseek-vl \
     --quant-policy 8 \
     --backend turbomind \
